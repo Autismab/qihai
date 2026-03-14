@@ -138,7 +138,7 @@ export default async function CurrentMatchPage() {
         <SectionCard title="为什么你们适合进一步了解">
           {match.explanationItems.length > 0 ? (
             <ul className="list-disc space-y-3 pl-5">
-              {match.explanationItems.map((item) => (
+              {match.explanationItems.map((item: string) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
