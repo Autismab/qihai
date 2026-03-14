@@ -1,9 +1,15 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { MatchStatus } from "@prisma/client";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_USER_EMAIL } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
+
+enum MatchStatus {
+  PENDING = "PENDING",
+  DELIVERED = "DELIVERED",
+  SKIPPED = "SKIPPED",
+  REPORTED = "REPORTED",
+}
 
 const ADMIN_RESULT_COOKIE = "date-match-admin-result";
 

@@ -1,6 +1,12 @@
-import { MatchStatus } from "@prisma/client";
 import { generateMatchForUser } from "@/lib/matching-engine";
 import { prisma } from "@/lib/prisma";
+
+enum MatchStatus {
+  PENDING = "PENDING",
+  DELIVERED = "DELIVERED",
+  SKIPPED = "SKIPPED",
+  REPORTED = "REPORTED",
+}
 
 export async function getCurrentMatchForUser(userId: string) {
   const currentUser = await prisma.user.findUnique({

@@ -1,4 +1,11 @@
-import { MatchStatus, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+
+enum MatchStatus {
+  PENDING = "PENDING",
+  DELIVERED = "DELIVERED",
+  SKIPPED = "SKIPPED",
+  REPORTED = "REPORTED",
+}
 import { prisma } from "@/lib/prisma";
 
 const DEFAULT_DAY_PREFIX = "serious-match";
