@@ -159,7 +159,7 @@ export async function getAdminSnapshot() {
           participantCount: participantIds.size,
           matchCount: currentBatch._count.matches,
           unmatchedCount: Math.max(candidateCount - participantIds.size, 0),
-          previewMatches: latestBatchMatches.map((match) => ({
+          previewMatches: latestBatchMatches.map((match: { id: string; score: number; userA: { nickname: string | null; email: string }; userB: { nickname: string | null; email: string } }) => ({
             id: match.id,
             score: match.score,
             pairLabel: `${match.userA.nickname ?? match.userA.email} ↔ ${match.userB.nickname ?? match.userB.email}`,
