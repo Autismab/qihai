@@ -126,7 +126,7 @@ export async function getAdminSnapshot() {
 
   const statusMap = Object.fromEntries(statusEntries) as Record<MatchStatus, number>;
   const participantIds = new Set<string>();
-  currentBatchMatches.forEach((item) => {
+  currentBatchMatches.forEach((item: { userAId: string; userBId: string }) => {
     participantIds.add(item.userAId);
     participantIds.add(item.userBId);
   });
