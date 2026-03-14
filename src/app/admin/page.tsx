@@ -96,7 +96,7 @@ export default async function AdminPage() {
 
             <div className="mt-4 space-y-3">
               {snapshot.latestBatchSummary.previewMatches.length > 0 ? (
-                snapshot.latestBatchSummary.previewMatches.map((match) => (
+                snapshot.latestBatchSummary.previewMatches.map((match: { id: string; pairLabel: string; score: number }) => (
                   <div key={match.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
                     <p className="font-medium text-white">{match.pairLabel}</p>
                     <p className="mt-1 text-white/60">score：{match.score}</p>

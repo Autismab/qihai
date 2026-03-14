@@ -97,3 +97,5 @@
  GET /dashboard 200 in 287ms (compile: 4ms, render: 282ms)
  GET /match/current 200 in 312ms (compile: 4ms, render: 308ms)
  GET /dashboard 200 in 269ms (compile: 4ms, render: 265ms)
+ GET /auth/signin 200 in 20ms (compile: 4ms, render: 16ms)
+ GET / 200 in 35ms (compile: 4ms, render: 31ms)
