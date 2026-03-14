@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum UserStatus {
+  ACTIVE
+  PAUSED
+  BANNED
+}
+
+enum MatchStatus {
+  PENDING
+  DELIVERED
+  SKIPPED
+  REPORTED
+}
+
+enum NotificationChannel {
+  EMAIL
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum MaritalStatus {
+  SINGLE
+  DIVORCED
+  WIDOWED
+}
+
+enum ChildrenStatus {
+  NONE
+  HAS_CHILDREN_LIVING_TOGETHER
+  HAS_CHILDREN_NOT_LIVING_TOGETHER
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String?
+  nickname      String?
+  status        UserStatus     @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  profile       Profile?
+  preference    Preference?
+  surveyAnswers SurveyAnswer[]
+  sentMatches   Match[]        @relation("MatchSender")
+  recvMatches   Match[]        @relation("MatchReceiver")
+  notifications Notification[]
+}
+
+model Profile {
+  id                     String         @id @default(cuid())
+  userId                 String         @unique
+  gender                 String?
+  birthYear              Int?
+  workCity               String?
+  heightCm               Int?
+  weightKg               Int?
+  education              String?
+  incomeLevel            String?
+  housingStatus          String?
+  carStatus              String?
+  partnerNote            String?
+  city                   String?
+  bio                    String?
+  maritalStatus          MaritalStatus?
+  childrenStatus         ChildrenStatus?
+  hometown               String?
+  currentCity            String?
+  planReturnToQidong     Boolean?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Preference {
+  id                         String          @id @default(cuid())
+  userId                     String          @unique
+  targetGender               String?
+  ageMin                     Int?
+  ageMax                     Int?
+  cityPreference             String?
+  preferredCities            String?
+  minEducation               String?
+  minIncomeLevel             String?
+  requireHousing             Boolean?
+  requireCar                 Boolean?
+  preferredHousingStatus     String?
+  preferredCarStatus         String?
+  partnerExpectation         String?
+  relationshipGoal           String?
+  dailyActive                Boolean         @default(true)
+  weeklyActive               Boolean         @default(true)
+  acceptLongDistance         Boolean?
+  acceptRelocateToQidong     Boolean?
+  preferredHometown          String?
+  acceptedMaritalStatuses    String?
+  acceptPartnerWithChildren  Boolean?
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @updatedAt
+  user                       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SurveyQuestion {
+  id          String         @id
+  dimension   String
+  prompt      String
+  orderIndex  Int
+  optionsJson Json
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  answers     SurveyAnswer[]
+}
+
+model SurveyAnswer {
+  id         String         @id @default(cuid())
+  userId     String
+  questionId String
+  answer     String
+  score      Int?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+}
+
+model MatchBatch {
+  id        String   @id @default(cuid())
+  dayKey    String   @unique
+  weekKey   String?  @unique
+  createdAt DateTime @default(now())
+  matches   Match[]
+}
+
+model Match {
+  id          String      @id @default(cuid())
+  batchId     String
+  userAId     String
+  userBId     String
+  score       Int
+  explanation String?
+  status      MatchStatus @default(PENDING)
+  deliveredAt DateTime?
+  createdAt   DateTime    @default(now())
+  batch       MatchBatch  @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  userA       User        @relation("MatchSender", fields: [userAId], references: [id], onDelete: Cascade)
+  userB       User        @relation("MatchReceiver", fields: [userBId], references: [id], onDelete: Cascade)
+
+  @@index([userAId])
+  @@index([userBId])
+}
+
+model Notification {
+  id        String              @id @default(cuid())
+  userId    String
+  channel   NotificationChannel @default(EMAIL)
+  subject   String
+  body      String
+  status    NotificationStatus  @default(PENDING)
+  createdAt DateTime            @default(now())
+  sentAt    DateTime?
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
