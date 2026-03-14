@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ensureInitializedCurrentUser } from "@/lib/user-init";
-import { ChildrenStatus, MaritalStatus } from "@prisma/client";
 import { buildProfileStructuredBio, cleanNullableText, extractProfileStructuredFields } from "@/lib/structured-fields";
+
+enum MaritalStatus {
+  SINGLE = "SINGLE",
+  DIVORCED = "DIVORCED",
+  WIDOWED = "WIDOWED",
+}
+
+enum ChildrenStatus {
+  NONE = "NONE",
+  HAS_CHILDREN_LIVING_TOGETHER = "HAS_CHILDREN_LIVING_TOGETHER",
+  HAS_CHILDREN_NOT_LIVING_TOGETHER = "HAS_CHILDREN_NOT_LIVING_TOGETHER",
+}
 
 function toNullableInt(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
