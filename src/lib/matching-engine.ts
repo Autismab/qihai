@@ -1,5 +1,3 @@
-import { Prisma } from "@prisma/client";
-
 enum MatchStatus {
   PENDING = "PENDING",
   DELIVERED = "DELIVERED",
@@ -30,17 +28,7 @@ const INCOME_RANK: Record<string, number> = {
   "50万以上": 5,
 };
 
-type UserWithMatchInputs = Prisma.UserGetPayload<{
-  include: {
-    profile: true;
-    preference: true;
-    surveyAnswers: {
-      include: {
-        question: true;
-      };
-    };
-  };
-}>;
+type UserWithMatchInputs = Awaited<ReturnType<typeof loadEligibleUsers>>[number];
 
 export type MatchCandidateResult = {
   candidateUserId: string;
