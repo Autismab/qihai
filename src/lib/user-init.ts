@@ -1,11 +1,17 @@
-import { ensureDemoBootstrap } from "@/lib/bootstrap";
+import { canUseDemoBootstrap, ensureDemoBootstrap, isProductionEnvironment } from "@/lib/bootstrap";
 import { createAuthSession, getCurrentUser } from "@/lib/auth";
 
 function shouldAutoSeedDemoSession() {
+  if (isProductionEnvironment()) {
+    return false;
+  }
   return process.env.AUTO_BOOTSTRAP_DEMO_SESSION !== "false";
 }
 
 export async function ensureAppSeedData() {
+  if (!canUseDemoBootstrap()) {
+    return;
+  }
   await ensureDemoBootstrap();
 }
 
@@ -17,7 +23,7 @@ export async function ensureInitializedCurrentUser() {
     return currentUser;
   }
 
-  if (!shouldAutoSeedDemoSession()) {
+  if (!shouldAutoSeedDemoSession() || !canUseDemoBootstrap()) {
     throw new Error("UNAUTHORIZED");
   }
 

@@ -8,7 +8,18 @@ const seedQuestions = [
   { dimension: "values", prompt: "你更重视情绪价值还是共同成长？", orderIndex: 3 },
 ];
 
+export function isProductionEnvironment() {
+  return process.env.NODE_ENV === "production";
+}
+
+export function canUseDemoBootstrap() {
+  return !isProductionEnvironment();
+}
+
 export async function ensureDemoBootstrap() {
+  if (!canUseDemoBootstrap()) {
+    throw new Error("DEMO_BOOTSTRAP_DISABLED");
+  }
   const user = await prisma.user.upsert({
     where: { email: DEMO_USER_EMAIL },
     update: {},
@@ -39,4 +50,5 @@ export async function ensureDemoBootstrap() {
 
   const match = await ensureDemoMatch();
 
-  return { user, match };}
+  return { user, match };
+}

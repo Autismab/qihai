@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { isProductionEnvironment } from "@/lib/bootstrap";
 import { DEMO_USER_EMAIL } from "@/lib/demo-user";
 import { prisma } from "@/lib/prisma";
 
@@ -19,6 +20,23 @@ type AdminActionResult = {
   at: string;
 };
 
+function getConfiguredAdminEmails() {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function isAdminEmail(email: string | null | undefined) {
+  if (!email) return false;
+  const normalizedEmail = email.trim().toLowerCase();
+  const configuredAdminEmails = getConfiguredAdminEmails();
+  if (configuredAdminEmails.length > 0) {
+    return configuredAdminEmails.includes(normalizedEmail);
+  }
+  return !isProductionEnvironment() && normalizedEmail === DEMO_USER_EMAIL;
+}
+
 function formatDateTime(value: Date | string | null | undefined) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("zh-CN", {
@@ -34,7 +52,7 @@ export async function requireAdminPageAccess() {
     redirect("/auth/signin");
   }
 
-  if (user.email !== DEMO_USER_EMAIL) {
+  if (!isAdminEmail(user.email)) {
     redirect("/dashboard");
   }
 
@@ -43,7 +61,7 @@ export async function requireAdminPageAccess() {
 
 export async function ensureAdminUser() {
   const user = await getCurrentUser();
-  if (!user || user.email !== DEMO_USER_EMAIL) {
+  if (!user || !isAdminEmail(user.email)) {
     throw new Error("ADMIN_ONLY");
   }
   return user;

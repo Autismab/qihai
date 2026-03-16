@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import { promisify } from "node:util";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { ensureDemoBootstrap } from "@/lib/bootstrap";
+import { canUseDemoBootstrap, ensureDemoBootstrap, isProductionEnvironment } from "@/lib/bootstrap";
 import { DEMO_USER_EMAIL } from "@/lib/demo-user";
 
 const scryptAsync = promisify(crypto.scrypt);
@@ -21,7 +21,12 @@ type SessionPayload = {
 type SafeCurrentUser = Awaited<ReturnType<typeof fetchCurrentUserRecord>>;
 
 function getSessionSecret() {
-  return process.env.AUTH_SESSION_SECRET || "date-match-dev-secret";
+  const secret = process.env.AUTH_SESSION_SECRET;
+  if (secret) return secret;
+  if (isProductionEnvironment()) {
+    throw new Error("AUTH_SESSION_SECRET_MISSING");
+  }
+  return "date-match-dev-secret";
 }
 
 function base64UrlEncode(input: string) {
@@ -209,6 +214,10 @@ export async function ensureCurrentUser() {
   const currentUser = await getCurrentUser();
   if (currentUser) return currentUser;
 
+  if (!canUseDemoBootstrap()) {
+    throw new Error("UNAUTHORIZED");
+  }
+
   const { user } = await ensureDemoBootstrap();
   await createAuthSession(user.id);
   return fetchCurrentUserRecord(user.id);
@@ -218,6 +227,9 @@ export async function registerWithPassword(email: string, password: string, nick
   const input = validateSignupInput(email, password, nickname);
 
   if (input.email === DEMO_USER_EMAIL) {
+    if (!canUseDemoBootstrap()) {
+      throw new Error("INVALID_CREDENTIALS");
+    }
     const { user } = await ensureDemoBootstrap();
     const nextPasswordHash = await hashPassword(password);
     const updatedUser = await prisma.user.update({
@@ -255,6 +267,9 @@ export async function signInWithPassword(email: string, password: string) {
   let user = await prisma.user.findUnique({ where: { email: input.email } });
 
   if (input.email === DEMO_USER_EMAIL) {
+    if (!canUseDemoBootstrap()) {
+      throw new Error("INVALID_CREDENTIALS");
+    }
     const bootstrapped = await ensureDemoBootstrap();
     user = await prisma.user.findUnique({ where: { id: bootstrapped.user.id } });
 

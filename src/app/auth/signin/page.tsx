@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FieldLabel, PageShell, PrimaryButton, SecondaryLink, TextInput } from "@/components/shell";
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("demo@datematch.local");
-  const [password, setPassword] = useState("demo12345");
+  const isDev = useMemo(() => process.env.NODE_ENV !== "production", []);
+  const [email, setEmail] = useState(isDev ? "demo@datematch.local" : "");
+  const [password, setPassword] = useState(isDev ? "demo12345" : "");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
@@ -40,10 +41,12 @@ export default function SignInPage() {
       backLabel="返回首页"
     >
       <div className="mx-auto max-w-md space-y-6">
-        <div className="rounded-3xl border border-[#b67a84]/15 bg-[#f8efe8] p-4 text-sm leading-7 text-[#6b5651]">
-          开发环境默认可用演示账号：
-          <div className="mt-2 font-medium text-[#201a17]">demo@datematch.local / demo12345</div>
-        </div>
+        {isDev ? (
+          <div className="rounded-3xl border border-[#b67a84]/15 bg-[#f8efe8] p-4 text-sm leading-7 text-[#6b5651]">
+            开发环境默认可用演示账号：
+            <div className="mt-2 font-medium text-[#201a17]">demo@datematch.local / demo12345</div>
+          </div>
+        ) : null}
 
         <label className="block">
           <FieldLabel>邮箱</FieldLabel>
