@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -11,8 +10,10 @@ function createClient() {
     throw new Error("DATABASE_URL is not set");
   }
 
-  const adapter = new PrismaBetterSqlite3({ url: connectionString });
-  return new PrismaClient({ adapter, log: ["error", "warn"] });
+  return new PrismaClient({
+    datasourceUrl: connectionString,
+    log: ["error", "warn"],
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? createClient();
