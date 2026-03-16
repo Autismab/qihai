@@ -57,7 +57,7 @@ export async function getDashboardSnapshot() {
       where: { userId: user.id },
       select: { questionId: true },
     });
-    const surveyAnswered = new Set(surveyAnsweredRaw.map((item) => item.questionId)).size;
+    const surveyAnswered = new Set(surveyAnsweredRaw.map((item: { questionId: string }) => item.questionId)).size;
 
     const structuredProfile = extractProfileStructuredFields(user.profile ?? {});
     const structuredPreference = extractPreferenceStructuredFields(user.preference ?? {});
