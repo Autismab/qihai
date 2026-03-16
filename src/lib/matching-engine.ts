@@ -82,30 +82,30 @@ function normalizeList(value: string | null | undefined) {
 }
 
 function getSurveyAverage(user: UserWithMatchInputs) {
-  const scored = user.surveyAnswers.filter((item) => typeof item.score === "number");
+  const scored = user.surveyAnswers.filter((item: UserWithMatchInputs["surveyAnswers"][number]) => typeof item.score === "number");
   if (!scored.length) return null;
-  return scored.reduce((sum, item) => sum + (item.score ?? 0), 0) / scored.length;
+  return scored.reduce((sum: number, item: UserWithMatchInputs["surveyAnswers"][number]) => sum + (item.score ?? 0), 0) / scored.length;
 }
 
 function getSurveyAlignmentScore(currentUser: UserWithMatchInputs, candidate: UserWithMatchInputs) {
   const currentByQuestion = new Map(
     currentUser.surveyAnswers
-      .filter((item) => typeof item.score === "number")
-      .map((item) => [item.questionId, item.score as number]),
+      .filter((item: UserWithMatchInputs["surveyAnswers"][number]) => typeof item.score === "number")
+      .map((item: UserWithMatchInputs["surveyAnswers"][number]) => [item.questionId, item.score as number]),
   );
 
   const overlaps = candidate.surveyAnswers
-    .filter((item) => typeof item.score === "number")
-    .map((item) => {
+    .filter((item: UserWithMatchInputs["surveyAnswers"][number]) => typeof item.score === "number")
+    .map((item: UserWithMatchInputs["surveyAnswers"][number]) => {
       const currentScore = currentByQuestion.get(item.questionId);
       if (typeof currentScore !== "number") return null;
       return Math.abs(currentScore - (item.score as number));
     })
-    .filter((value): value is number => value !== null);
+    .filter((value: number | null): value is number => value !== null);
 
   if (!overlaps.length) return 10;
 
-  const averageDiff = overlaps.reduce((sum, value) => sum + value, 0) / overlaps.length;
+  const averageDiff = overlaps.reduce((sum: number, value: number) => sum + value, 0) / overlaps.length;
   return Math.max(0, Math.round(25 - averageDiff * 5));
 }
 
@@ -261,15 +261,15 @@ async function loadEligibleUsers(excludeUserIds: string[] = []) {
 
 export async function buildMatchCandidatesForUser(userId: string): Promise<MatchCandidateResult[]> {
   const users = await loadEligibleUsers();
-  const currentUser = users.find((item) => item.id === userId);
+  const currentUser = users.find((item: UserWithMatchInputs) => item.id === userId);
   if (!currentUser || !isEligibleForMatching(currentUser)) return [];
 
   return users
-    .filter((candidate) => candidate.id !== currentUser.id)
-    .filter((candidate) => isEligibleForMatching(candidate))
-    .filter((candidate) => satisfiesOwnPreference(currentUser, candidate) || satisfiesOwnPreference(candidate, currentUser))
-    .map((candidate) => scorePair(currentUser, candidate))
-    .sort((a, b) => b.score - a.score)
+    .filter((candidate: UserWithMatchInputs) => candidate.id !== currentUser.id)
+    .filter((candidate: UserWithMatchInputs) => isEligibleForMatching(candidate))
+    .filter((candidate: UserWithMatchInputs) => satisfiesOwnPreference(currentUser, candidate) || satisfiesOwnPreference(candidate, currentUser))
+    .map((candidate: UserWithMatchInputs) => scorePair(currentUser, candidate))
+    .sort((a: MatchCandidateResult, b: MatchCandidateResult) => b.score - a.score)
     .slice(0, MAX_RESULTS_PER_USER);
 }
 
@@ -337,7 +337,7 @@ export async function generateMatchForUser(userId: string, dayKey = getCurrentDa
 
 export async function runDailyMatchBatch(dayKey = getCurrentDayKey()) {
   const users = await loadEligibleUsers();
-  const eligibleUsers = users.filter((user) => isEligibleForMatching(user));
+  const eligibleUsers = users.filter((user: UserWithMatchInputs) => isEligibleForMatching(user));
   const results: GenerateMatchesForUserResult[] = [];
 
   for (const user of eligibleUsers) {
