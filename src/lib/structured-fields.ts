@@ -35,7 +35,7 @@ export function cleanNullableBoolean(value: unknown) {
 export function cleanStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value
-      .map((item) => cleanNullableText(item))
+      .map((item: unknown) => cleanNullableText(item))
       .filter((item): item is string => Boolean(item));
   }
 
@@ -47,7 +47,7 @@ export function cleanStringArray(value: unknown): string[] {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
         return parsed
-          .map((item) => cleanNullableText(item))
+          .map((item: unknown) => cleanNullableText(item))
           .filter((item): item is string => Boolean(item));
       }
     } catch {
@@ -56,7 +56,7 @@ export function cleanStringArray(value: unknown): string[] {
 
     return trimmed
       .split(/[，,、;；\n]+/)
-      .map((item) => item.trim())
+      .map((item: string) => item.trim())
       .filter(Boolean);
   }
 

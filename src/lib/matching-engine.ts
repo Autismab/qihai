@@ -89,7 +89,7 @@ function normalizeList(value: string | null | undefined) {
   if (!text) return [];
   return text
     .split(/[，,、\n]/)
-    .map((item) => item.trim())
+    .map((item: string) => item.trim())
     .filter(Boolean);
 }
 

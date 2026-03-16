@@ -11,16 +11,16 @@ function toNullableInt(value: unknown) {
 
 function normalizeAcceptedMaritalStatuses(value: unknown): string | null {
   if (Array.isArray(value)) {
-    const cleaned = value.map((item) => cleanNullableText(item)?.toUpperCase()).filter(Boolean);
+    const cleaned = value.map((item: unknown) => cleanNullableText(item)?.toUpperCase()).filter(Boolean);
     return cleaned.length ? cleaned.join(',') : null;
   }
   const text = cleanNullableText(value);
   if (!text) return null;
   return text
     .split(/[，,、\n]/)
-    .map((item) => item.trim())
+    .map((item: string) => item.trim())
     .filter(Boolean)
-    .map((item) => {
+    .map((item: string) => {
       const upper = item.toUpperCase();
       if (upper === '未婚') return 'SINGLE';
       if (upper === '离异' || upper === '离异未育' || upper === '离异有子女') return 'DIVORCED';

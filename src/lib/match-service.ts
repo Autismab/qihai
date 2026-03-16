@@ -49,7 +49,7 @@ export async function getCurrentMatchForUser(userId: string) {
   const partner = match.userAId === currentUser.id ? match.userB : match.userA;
   const explanationItems = (match.explanation ?? "")
     .split(/\r?\n/)
-    .map((item) => item.trim())
+    .map((item: string) => item.trim())
     .filter(Boolean);
 
   return {
